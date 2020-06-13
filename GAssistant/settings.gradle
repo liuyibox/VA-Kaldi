@@ -1,0 +1,3 @@
+include ':app', ':kaldi-android-5.2-old-release', ':models'
+//include ':app', ':models'
+rootProject.name='EdgeAssistant'
