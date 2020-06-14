@@ -65,6 +65,8 @@ public class MStorm extends AppCompatActivity{
     public static final String LOG_URL = MStormDir + "mstorm.log";
     public static final String ASSIGNMENT_URL = MStormDir + "serAssign.txt";
     public static final String apkFileDirectory = MStormDir + "APK/";
+
+    public static String nativeLibDir = "";
     Logger logger;
 
 //    // Permissions
@@ -267,6 +269,9 @@ public class MStorm extends AppCompatActivity{
         } catch (IOException e) {
             mLog.append("Can not create log file probably due to insufficient permission");
         }
+
+        nativeLibDir = context.getApplicationInfo().nativeLibraryDir;
+        logger.info("Native library: " + context.getApplicationInfo().nativeLibraryDir);
 
         /// Get own GUID
         GUID = GNSServiceHelper.getOwnGUID();

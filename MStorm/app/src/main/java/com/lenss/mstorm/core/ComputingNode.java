@@ -252,8 +252,14 @@ public class ComputingNode extends Service {
 
         // execute tasks assigned to this node
         String fileName = assignment.getApk();
+        logger.info("Apk name is obtained by the assignment: " + fileName);
         File dexOutputDir = this.getApplicationContext().getFilesDir();
+        logger.info("dexOutputDir: " + dexOutputDir.getAbsolutePath());
         DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), null, this.getClassLoader());
+
+//        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), MStorm.nativeLibDir, this.getClassLoader());
+        logger.info("dexPath: " + MStorm.apkFileDirectory + fileName);
+        logger.info("nativeLibPath: " +  MStorm.nativeLibDir);
         if (localTasks!=null) {
             HashMap<String, String> component2serInstance = topology.getSerInstances();
             HashMap<Integer, String> task2Component = assignment.getTask2Component();

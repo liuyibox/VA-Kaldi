@@ -18,6 +18,10 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "armeabi", "mips"
+        }
     }
 
 //    splits {
@@ -57,10 +61,14 @@ repositories {
 }
 
 dependencies {
+
+//    compile files('libs/kaldiaar.jar')
+
     implementation fileTree(include: ['*.jar', '*.so', '.aar'], dir: 'libs')
 //    implementation 'com.android.support:appcompat-v7:26.0.3'
 //    implementation 'com.android.support:support-compat:26.1.0'
     implementation files('libs/sd-sdk-facial-processing.jar')
+//    implementation files('libs/kaldi-android-5.2-release-old.aar')
 //    implementation 'com.android.support:support-v7:21.0.3'
 //    implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'io.netty:netty:3.8.0.Final'
@@ -77,6 +85,8 @@ dependencies {
     implementation project(':dlib')
     implementation project(':kaldi-android-5.2-release-old')
     implementation project(':models')
+
+
 }
 
 //configurations.all {

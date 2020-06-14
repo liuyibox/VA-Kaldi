@@ -5,7 +5,7 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.lenss.liuyi.edgeassistant"
-        minSdkVersion 24
+        minSdkVersion 26
 
         targetSdkVersion 28
         versionCode 1
@@ -40,6 +40,7 @@ dependencies {
 //    implementation project('libs/kaldi-android-5.2-old-release.aar')
     implementation project(':kaldi-android-5.2-old-release')
     implementation project(':models')
+    implementation project(':dlib')
     implementation fileTree(dir: 'libs', include: ['*.jar', '.so', '.aar'])
     implementation 'io.netty:netty:3.8.0.Final'
     implementation 'androidx.appcompat:appcompat:1.1.0'

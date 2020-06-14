@@ -18,16 +18,20 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import com.tzutalin.dlib.FaceDet;
+
 import static java.lang.Math.min;
 
 public class MyVoiceConverter extends Processor{
 
-    static { System.loadLibrary("kaldi_jni"); }
+//    static { System.loadLibrary("kaldi_jni"); }
     private Logger logger;
     private final String TAG = "MyVoiceConverter";
     private WeakReference<MyVoiceConverter> mscWeakReference;
     private Model converter_model;
     TextView resultView;
+
+    private FaceDet dFaceDet = null;
 
     @Override
     public void prepare(){
@@ -44,6 +48,9 @@ public class MyVoiceConverter extends Processor{
 //        }catch (IOException e){
 //            logger.debug("The model is not accessible in MyVoiceConverter");
 //        }
+//        System.loadLibrary("android_dlib");
+        dFaceDet = new FaceDet();
+//        System.loadLibrary("kaldi_jni");
 //        converter_model = GAssistantActivity.model;
 //        converter_model = new Model("/storage/emulated/0/Android/data/com.lenss.liuyi.edgeassistant/files/sync/model-android");
     }
