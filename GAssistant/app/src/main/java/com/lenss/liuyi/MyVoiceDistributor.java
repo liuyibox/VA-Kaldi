@@ -109,9 +109,9 @@ public class MyVoiceDistributor extends Distributor {
                 }
             }
         };
-        logger.info(TAG +  "This is before the file observer watch");
+//        logger.info(TAG +  "This is before the file observer watch");
         fileObserver.startWatching();
-        logger.info(TAG +  "This is after the file observer watch");
+//        logger.info(TAG +  "This is after the file observer watch");
     }
 
     @Override

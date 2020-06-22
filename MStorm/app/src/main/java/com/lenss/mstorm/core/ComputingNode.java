@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+
+import dalvik.system.BaseDexClassLoader;
 import dalvik.system.DexClassLoader;
 import edu.tamu.cse.lenss.edgeKeeper.client.EKClient;
 
@@ -55,8 +57,8 @@ public class ComputingNode extends Service {
     private final String TAG="ComputingNode";
     Logger logger = Logger.getLogger(TAG);
 
-    static { System.loadLibrary("android_dlib"); }
-    static { System.loadLibrary("kaldi_jni"); }
+//    static { System.loadLibrary("android_dlib"); }
+//    static { System.loadLibrary("kaldi_jni"); }
 
     // Context
     public static Context context;
@@ -255,12 +257,18 @@ public class ComputingNode extends Service {
         logger.info("Apk name is obtained by the assignment: " + fileName);
         File dexOutputDir = this.getApplicationContext().getFilesDir();
         logger.info("dexOutputDir: " + dexOutputDir.getAbsolutePath());
-        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), null, this.getClassLoader());
 
-//        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), MStorm.nativeLibDir, this.getClassLoader());
+        // help the DexClassLoader find the .so library
+        String librarySearchPath = ((BaseDexClassLoader) getClassLoader()).findLibrary("kaldi_jni");
+        logger.info("The library Search Path is: " + librarySearchPath);
+        librarySearchPath = librarySearchPath.substring(0, librarySearchPath.lastIndexOf('/'));
+        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), librarySearchPath, this.getClassLoader());
+
+//        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), librarySearchPath, this.getClassLoader());
         logger.info("dexPath: " + MStorm.apkFileDirectory + fileName);
         logger.info("nativeLibPath: " +  MStorm.nativeLibDir);
         if (localTasks!=null) {
+//            logger.info("localTask is not null.");
             HashMap<String, String> component2serInstance = topology.getSerInstances();
             HashMap<Integer, String> task2Component = assignment.getTask2Component();
             String sourceAddr  = assignment.getSourceAddr();  // GUID addr
@@ -282,6 +290,7 @@ public class ComputingNode extends Service {
                 }
             }
         }
+//        logger.info("!!!this is after the nativeLibPath: " +  MStorm.nativeLibDir);
 
         // wait for all tasks running up
 //        try {

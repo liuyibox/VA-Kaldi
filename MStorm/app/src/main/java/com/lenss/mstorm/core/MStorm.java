@@ -56,8 +56,8 @@ import edu.tamu.cse.lenss.edgeKeeper.client.EKClient;
 public class MStorm extends AppCompatActivity{
 
 //    check if mstorm could successfully load libkaldi_jni.so
-    static { System.loadLibrary("android_dlib"); }
-    static { System.loadLibrary("kaldi_jni"); }
+//    static { System.loadLibrary("android_dlib"); }
+//    static { System.loadLibrary("kaldi_jni"); }
 
     // For Logs
     public static final String TAG = "MStorm";

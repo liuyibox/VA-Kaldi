@@ -33,9 +33,9 @@ import com.lenss.mstorm.topology.Topology;
 import org.apache.log4j.Logger;
 import org.kaldi.Assets;
 import org.kaldi.KaldiRecognizer;
-//import org.kaldi.Model;
-//import org.kaldi.RecognitionListener;
-//import org.kaldi.SpeechRecognizer;
+import org.kaldi.Model;
+import org.kaldi.RecognitionListener;
+import org.kaldi.SpeechRecognizer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,7 +50,7 @@ import java.util.Random;
 
 public class GAssistantActivity extends AppCompatActivity {
 
-//    static { System.loadLibrary("kaldi_jni"); }
+    static { System.loadLibrary("kaldi_jni"); }
 
     private static final String TAG = "GDetectionActivity";
 
@@ -95,7 +95,8 @@ public class GAssistantActivity extends AppCompatActivity {
     private int count = 1;
 
     Thread recognizeThread;
-//    public static Model model;
+//    private Model model;
+    public static Model model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,12 +146,12 @@ public class GAssistantActivity extends AppCompatActivity {
         });
 
         // listener for recognize file
-//        findViewById(R.id.recognize_file).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                recognizeFile();
-//            }
-//        });
+        findViewById(R.id.recognize_file).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recognizeFile();
+            }
+        });
 
         // listener for submiting topology
         findViewById(R.id.action_submit_topology).setOnClickListener(new View.OnClickListener() {
@@ -185,7 +186,7 @@ public class GAssistantActivity extends AppCompatActivity {
                 Assets assets = new Assets(activityWeakReference.get());
                 File assetDir = assets.syncAssets();
                 Log.d("!!!!", assetDir.toString());
-//                model = new Model(assetDir.toString()+ "/model-android");
+                model = new Model(assetDir.toString()+ "/model-android");
 //                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
                 Log.d("!!!!", "Model implementation has been found in: " + assetDir.toString());
 //                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
@@ -416,21 +417,21 @@ public class GAssistantActivity extends AppCompatActivity {
             long startTime = System.currentTimeMillis();
             StringBuilder result = new StringBuilder();
             try{
-//                rec = new KaldiRecognizer(activityWeakReference.get().model, 16000.f);
+                rec = new KaldiRecognizer(activityWeakReference.get().model, 16000.f);
                 InputStream ais = activityWeakReference.get().getAssets().open("10001-90210-01803.wav");
                 if(ais.skip(44) != 44){
                     return "";
                 }
                 byte[] b = new byte[4096];
                 int nbytes;
-//                while((nbytes = ais.read(b)) >= 0){
-//                    if(rec.AcceptWaveform(b, nbytes)){
-//                        result.append(rec.Result());
-//                    } else {
-//                        result.append(rec.PartialResult());
-//                    }
-//                }
-//                result.append(rec.FinalResult());
+                while((nbytes = ais.read(b)) >= 0){
+                    if(rec.AcceptWaveform(b, nbytes)){
+                        result.append(rec.Result());
+                    } else {
+                        result.append(rec.PartialResult());
+                    }
+                }
+                result.append(rec.FinalResult());
             }catch (IOException e){
                 return "";
             }
@@ -459,7 +460,4 @@ public class GAssistantActivity extends AppCompatActivity {
             }
         }
     };
-
-
-
 }

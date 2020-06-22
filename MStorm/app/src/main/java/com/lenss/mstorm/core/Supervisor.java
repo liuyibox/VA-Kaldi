@@ -35,11 +35,12 @@ import org.apache.zookeeper.client.ZooKeeperSaslClient;
 import org.apache.zookeeper.server.quorum.AuthFastLeaderElection;
 
 public class Supervisor extends Service implements AssignmentProcessor {
+
     private final String TAG="Supervisor";
     Logger logger = Logger.getLogger(TAG);
 
-    static { System.loadLibrary("android_dlib"); }
-    static { System.loadLibrary("kaldi_jni"); }
+//    static { System.loadLibrary("android_dlib"); }
+//    static { System.loadLibrary("kaldi_jni"); }
 
     private ZookeeperClient mZKClient=null;
     private boolean isRuning =false;
