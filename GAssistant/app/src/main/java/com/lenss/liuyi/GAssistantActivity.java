@@ -31,11 +31,11 @@ import com.lenss.mstorm.topology.StormSubmitter;
 import com.lenss.mstorm.topology.Topology;
 
 import org.apache.log4j.Logger;
-import org.kaldi.Assets;
-import org.kaldi.KaldiRecognizer;
-import org.kaldi.Model;
-import org.kaldi.RecognitionListener;
-import org.kaldi.SpeechRecognizer;
+//import org.kaldi.Assets;
+//import org.kaldi.KaldiRecognizer;
+//import org.kaldi.Model;
+//import org.kaldi.RecognitionListener;
+//import org.kaldi.SpeechRecognizer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,7 +50,7 @@ import java.util.Random;
 
 public class GAssistantActivity extends AppCompatActivity {
 
-    static { System.loadLibrary("kaldi_jni"); }
+//    static { System.loadLibrary("kaldi_jni"); }
 
     private static final String TAG = "GDetectionActivity";
 
@@ -96,7 +96,7 @@ public class GAssistantActivity extends AppCompatActivity {
 
     Thread recognizeThread;
 //    private Model model;
-    public static Model model;
+//    public static Model model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,21 +182,21 @@ public class GAssistantActivity extends AppCompatActivity {
 
         @Override
         protected Exception doInBackground(Void... params){
-            try{
-                Assets assets = new Assets(activityWeakReference.get());
-                File assetDir = assets.syncAssets();
-                Log.d("!!!!", assetDir.toString());
-                model = new Model(assetDir.toString()+ "/model-android");
+//            try{
+//                Assets assets = new Assets(activityWeakReference.get());
+//                File assetDir = assets.syncAssets();
+//                Log.d("!!!!", assetDir.toString());
+//                model = new Model(assetDir.toString()+ "/model-android");
 //                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
-                Log.d("!!!!", "Model implementation has been found in: " + assetDir.toString());
+//                Log.d("!!!!", "Model implementation has been found in: " + assetDir.toString());
 //                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
 
                 File rawVoiceFolder = new File(RAW_VOICE_URL);
                 rawVoiceFolder.mkdir();
 
-            }catch (IOException e){
-                return e;
-            }
+//            }catch (IOException e){
+//                return e;
+//            }
             return null;
         }
 
@@ -401,53 +401,53 @@ public class GAssistantActivity extends AppCompatActivity {
         }
     }
 
-    private static class RecognizeFileTask extends AsyncTask<Void, Void, String>{
-
-        WeakReference<GAssistantActivity> activityWeakReference;
-        WeakReference<TextView> resultView;
-
-        RecognizeFileTask(GAssistantActivity activity, TextView resultView){
-            this.activityWeakReference = new WeakReference<GAssistantActivity>(activity);
-            this.resultView = new WeakReference<>(resultView);
-        }
-
-        @Override
-        protected String doInBackground(Void... params){
-            KaldiRecognizer rec;
-            long startTime = System.currentTimeMillis();
-            StringBuilder result = new StringBuilder();
-            try{
-                rec = new KaldiRecognizer(activityWeakReference.get().model, 16000.f);
-                InputStream ais = activityWeakReference.get().getAssets().open("10001-90210-01803.wav");
-                if(ais.skip(44) != 44){
-                    return "";
-                }
-                byte[] b = new byte[4096];
-                int nbytes;
-                while((nbytes = ais.read(b)) >= 0){
-                    if(rec.AcceptWaveform(b, nbytes)){
-                        result.append(rec.Result());
-                    } else {
-                        result.append(rec.PartialResult());
-                    }
-                }
-                result.append(rec.FinalResult());
-            }catch (IOException e){
-                return "";
-            }
-            return String.format(activityWeakReference.get().getString(R.string.elapsed), result.toString(), (System.currentTimeMillis() - startTime));
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-            activityWeakReference.get().setUiState(STATE_READY);
-            resultView.get().append(result + "\n");
-        }
-    }
+//    private static class RecognizeFileTask extends AsyncTask<Void, Void, String>{
+//
+//        WeakReference<GAssistantActivity> activityWeakReference;
+//        WeakReference<TextView> resultView;
+//
+//        RecognizeFileTask(GAssistantActivity activity, TextView resultView){
+//            this.activityWeakReference = new WeakReference<GAssistantActivity>(activity);
+//            this.resultView = new WeakReference<>(resultView);
+//        }
+//
+//        @Override
+//        protected String doInBackground(Void... params){
+//            KaldiRecognizer rec;
+//            long startTime = System.currentTimeMillis();
+//            StringBuilder result = new StringBuilder();
+//            try{
+//                rec = new KaldiRecognizer(activityWeakReference.get().model, 16000.f);
+//                InputStream ais = activityWeakReference.get().getAssets().open("10001-90210-01803.wav");
+//                if(ais.skip(44) != 44){
+//                    return "";
+//                }
+//                byte[] b = new byte[4096];
+//                int nbytes;
+//                while((nbytes = ais.read(b)) >= 0){
+//                    if(rec.AcceptWaveform(b, nbytes)){
+//                        result.append(rec.Result());
+//                    } else {
+//                        result.append(rec.PartialResult());
+//                    }
+//                }
+//                result.append(rec.FinalResult());
+//            }catch (IOException e){
+//                return "";
+//            }
+//            return String.format(activityWeakReference.get().getString(R.string.elapsed), result.toString(), (System.currentTimeMillis() - startTime));
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result){
+//            activityWeakReference.get().setUiState(STATE_READY);
+//            resultView.get().append(result + "\n");
+//        }
+//    }
 
     private void recognizeFile(){
         setUiState(STATE_FILE);
-        new RecognizeFileTask(this, resultView).execute();
+//        new RecognizeFileTask(this, resultView).execute();
     }
 
     private final Handler mhandler = new Handler(){
