@@ -13,8 +13,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/dlib" />
-            <option value="$PROJECT_DIR$/kaldi-android-5.2-old-release" />
-            <option value="$PROJECT_DIR$/models" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

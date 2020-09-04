@@ -1,3 +1,6 @@
-//include ':app',':dlib'
-include ':app', ':dlib', ':models', ':kaldi-android-5.2-release-old'
+include ':app'
+//include ':app', ':dlib', ':models', ':kaldi-android-5.2-release-old'
+//include ':app', ':dlib', ':kaldilib', ':kaldi-android-5.2-release-old'
+//include ':app', ':dlib', ':kaldilib'
+//include ':app', ':kaldilib'
 rootProject.name='MStorm'

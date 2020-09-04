@@ -110,50 +110,50 @@ public class Supervisor extends Service implements AssignmentProcessor {
         // join MStorm cluster
         joinCluster();
 
-        // Start this service as foreground service, adapted from https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            String SV_NotifiChanId = "com.lenss.storm.supervisor";
-            String channelName = "Background Supervisor Service";
-            NotificationChannel channel = new NotificationChannel(SV_NotifiChanId, channelName, NotificationManager.IMPORTANCE_NONE);
-//            channel.setLightColor(Color.BLUE);
-//            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            assert manager != null;
-            manager.createNotificationChannel(channel);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder (this.getApplicationContext(), SV_NotifiChanId);
-            Intent nfIntent = new Intent(this, MStorm.class);
-            builder.setContentIntent(PendingIntent.getActivity(this, 0, nfIntent, 0))
-                    .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_large))
-                    .setContentTitle("Supervisor Is Running")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentText("Supervisor Is Running")
-                    .setWhen(System.currentTimeMillis());
-            Notification notification = builder.build();
-//            notification.defaults = Notification.DEFAULT_SOUND;
-//            notification.de
-            startForeground(102, notification);
-
-            return START_NOT_STICKY;
-//        }else{
-//            startForeground(1, new Notification());
-//        }
-
-
-//        Notification.Builder builder = new Notification.Builder (this.getApplicationContext());
-//        Intent nfIntent = new Intent(this, MStorm.class);
-//        builder.setContentIntent(PendingIntent.getActivity(this, 0, nfIntent, 0))
-//                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_large))
-//                .setContentTitle("Supervisor Is Running")
-//                .setSmallIcon(R.mipmap.ic_launcher)
-//                .setContentText("Supervisor Is Running")
-//                .setWhen(System.currentTimeMillis());
-//        Notification notification = builder.build();
-//        notification.defaults = Notification.DEFAULT_SOUND;
-//        startForeground(102, notification);
+//        // Start this service as foreground service, adapted from https://stackoverflow.com/questions/47531742/startforeground-fail-after-upgrade-to-android-8-1
+////        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+//            String SV_NotifiChanId = "com.lenss.storm.supervisor";
+//            String channelName = "Background Supervisor Service";
+//            NotificationChannel channel = new NotificationChannel(SV_NotifiChanId, channelName, NotificationManager.IMPORTANCE_NONE);
+////            channel.setLightColor(Color.BLUE);
+////            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
 //
-//        return START_NOT_STICKY;
+//            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//            assert manager != null;
+//            manager.createNotificationChannel(channel);
+//
+//            NotificationCompat.Builder builder = new NotificationCompat.Builder (this.getApplicationContext(), SV_NotifiChanId);
+//            Intent nfIntent = new Intent(this, MStorm.class);
+//            builder.setContentIntent(PendingIntent.getActivity(this, 0, nfIntent, 0))
+//                    .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_large))
+//                    .setContentTitle("Supervisor Is Running")
+//                    .setSmallIcon(R.mipmap.ic_launcher)
+//                    .setContentText("Supervisor Is Running")
+//                    .setWhen(System.currentTimeMillis());
+//            Notification notification = builder.build();
+////            notification.defaults = Notification.DEFAULT_SOUND;
+////            notification.de
+//            startForeground(102, notification);
+//
+//            return START_NOT_STICKY;
+////        }else{
+////            startForeground(1, new Notification());
+////        }
+
+
+        Notification.Builder builder = new Notification.Builder (this.getApplicationContext());
+        Intent nfIntent = new Intent(this, MStorm.class);
+        builder.setContentIntent(PendingIntent.getActivity(this, 0, nfIntent, 0))
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_large))
+                .setContentTitle("Supervisor Is Running")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentText("Supervisor Is Running")
+                .setWhen(System.currentTimeMillis());
+        Notification notification = builder.build();
+        notification.defaults = Notification.DEFAULT_SOUND;
+        startForeground(102, notification);
+
+        return START_NOT_STICKY;
     }
 
     @Override

@@ -17,7 +17,7 @@ import android.os.Message;
 //import android.support.annotation.NonNull;
 
 
-
+import dalvik.system.BaseDexClassLoader;
 
 // change to androidx
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,6 +49,8 @@ import com.lenss.mstorm.utils.Intents;
 import com.lenss.mstorm.utils.TAGs;
 
 import org.apache.log4j.Logger;
+
+import java.io.File;
 import java.io.IOException;
 
 import edu.tamu.cse.lenss.edgeKeeper.client.EKClient;
@@ -67,6 +69,7 @@ public class MStorm extends AppCompatActivity{
     public static final String apkFileDirectory = MStormDir + "APK/";
 
     public static String nativeLibDir = "";
+    public static String[] sharedLibDirs;
     Logger logger;
 
 //    // Permissions
@@ -272,6 +275,33 @@ public class MStorm extends AppCompatActivity{
 
         nativeLibDir = context.getApplicationInfo().nativeLibraryDir;
         logger.info("Native library: " + context.getApplicationInfo().nativeLibraryDir);
+
+        File native_dir = new File(nativeLibDir);
+        File[] files = native_dir.listFiles();
+        logger.info("Native Files size: " + files.length);
+        for(int i = 0; i < files.length; i++){
+            logger.info("Native FileName: " + files[i].getName());
+        }
+
+
+
+//        sharedLibDirs = context.getApplicationInfo().sharedLibraryFiles;
+//        for(String sharedLibDir : sharedLibDirs){
+//            logger.info("Shared library path: " + sharedLibDir);
+//            File shared_dir = new File(sharedLibDir);
+//            File[] shared_files = shared_dir.listFiles();
+//            logger.info("Shared Files size: " + shared_files.length);
+//            for(int i = 0; i < shared_files.length; i++){
+//                logger.info("Shared FileName: " + shared_files[i].getName());
+//            }
+//        }
+
+//        String librarySearchPath = ((BaseDexClassLoader) getClassLoader()).findLibrary("kaldi_jni");
+//        logger.info("The library Search Path is: " + librarySearchPath);
+//        librarySearchPath = librarySearchPath.substring(0, librarySearchPath.lastIndexOf('/'));
+
+
+
 
         /// Get own GUID
         GUID = GNSServiceHelper.getOwnGUID();

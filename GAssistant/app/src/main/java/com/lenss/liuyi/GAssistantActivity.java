@@ -1,11 +1,13 @@
 package com.lenss.liuyi;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+//import javax.sound.sampled.AudioFormat;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -13,10 +15,12 @@ import android.media.MediaRecorder.AudioSource;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,16 +36,18 @@ import com.lenss.mstorm.topology.Topology;
 
 import org.apache.log4j.Logger;
 //import org.kaldi.Assets;
-//import org.kaldi.KaldiRecognizer;
-//import org.kaldi.Model;
-//import org.kaldi.RecognitionListener;
-//import org.kaldi.SpeechRecognizer;
+import org.kaldi.KaldiRecognizer;
+import org.kaldi.Model;
+import org.kaldi.RecognitionListener;
+import org.kaldi.SpeechService;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -57,6 +63,7 @@ public class GAssistantActivity extends AppCompatActivity {
     private static final String apkFileName = "GAssistant.apk";
 
     private static final String MStormDir = Environment.getExternalStorageDirectory().getPath() + "/distressnet/MStorm/";
+    private static final String VOICE_TEXT_PATH = Environment.getExternalStorageDirectory().getPath() + "/distressnet/MStorm/VoiceText/";
 //    private static final String MStormDir = this.getExternalFilesDir().getPath()
     private static final String RAW_VOICE_URL =  MStormDir + "RawVoice/";
     private static final String STORAGE_VOICE_URL =  MStormDir + "StorageVoice/";
@@ -93,9 +100,12 @@ public class GAssistantActivity extends AppCompatActivity {
     private final int sample_rate = 16000;
     private final int bufferSize = Math.round(sample_rate * 0.4f);
     private int count = 1;
+    private int byteCount = 0;
 
     Thread recognizeThread;
-//    private Model model;
+    boolean creatWav = true;
+    private File pcmFile = null;
+    private File wavFile = null;
 //    public static Model model;
 
     @Override
@@ -182,21 +192,46 @@ public class GAssistantActivity extends AppCompatActivity {
 
         @Override
         protected Exception doInBackground(Void... params){
-//            try{
-//                Assets assets = new Assets(activityWeakReference.get());
-//                File assetDir = assets.syncAssets();
-//                Log.d("!!!!", assetDir.toString());
-//                model = new Model(assetDir.toString()+ "/model-android");
-//                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
-//                Log.d("!!!!", "Model implementation has been found in: " + assetDir.toString());
-//                activityWeakReference.get().model = new Model(assetDir.toString()+ "/model-android");
 
-                File rawVoiceFolder = new File(RAW_VOICE_URL);
-                rawVoiceFolder.mkdir();
+            /*create and clean raw voice dir*/
+            File rawVoiceFolder = new File(RAW_VOICE_URL);
+            if(!rawVoiceFolder.exists()){
+                boolean f = rawVoiceFolder.mkdirs();
+                Log.d(TAG, String.format("pcm dir: %s -> %b", RAW_VOICE_URL, f));
+            }else{
+                for(File f: rawVoiceFolder.listFiles()){
+                    boolean d = f.delete();
+                    Log.d(TAG, String.format("Delete pcm file: %s -> %b", f.getName(), d));
+                }
+                Log.d(TAG, String.format("pcm dir: %s", RAW_VOICE_URL));
+            }
 
-//            }catch (IOException e){
-//                return e;
-//            }
+            /*create and clean voice recognition result dir*/
+            File voiceSaverDir = new File(VOICE_TEXT_PATH);
+            if(!voiceSaverDir.exists()){
+                boolean f = voiceSaverDir.mkdirs();
+                Log.d(TAG, String.format("saver dir: %s -> %b", RAW_VOICE_URL, f));
+            }else{
+                for(File f: voiceSaverDir.listFiles()){
+                    boolean d = f.delete();
+                    Log.d(TAG, String.format("Delete saver file: %s -> %b", f.getName(), d));
+                }
+                Log.d(TAG, String.format("saver dir: %s", RAW_VOICE_URL));
+            }
+
+            /*monitor the voice recognition result text file*/
+//            FileObserver fo = new FileObserver(VOICE_TEXT_PATH) {
+//                @Override
+//                public void onEvent(int event, @Nullable String path) {
+//                    if(event == FileObserver.CLOSE_WRITE &&
+//                            path.substring(path.lastIndexOf('.')).equals(".txt")){
+//
+//                    }
+//                }
+//            };
+//            fo.startWatching();
+//            Log.d(TAG, "File Observer is watching " + VOICE_TEXT_PATH);
+
             return null;
         }
 
@@ -217,20 +252,17 @@ public class GAssistantActivity extends AppCompatActivity {
         findViewById(R.id.recognize_file).setEnabled(false);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
+//    private final class RecResultThread extends Thread{
 //
-//        int id = item.getItemId();
-//        if(id == R.id.action_submit_topology){
-//            submitTopology();
-//        }else if(id == R.id.action_cancel_topology){
-//            cancelTopology();
-//        }else{
+//        @Override
+//        public void run() {
 //
+//            while(!interrupted()){
+//
+//            }
 //        }
-//
-//        return super.onOptionsItemSelected(item);
 //    }
+
 
     private final class RecognizerThread extends Thread{
 
@@ -239,54 +271,79 @@ public class GAssistantActivity extends AppCompatActivity {
         private final static int NO_TIMEOUT = -1;
 
         short[] buffer = new short[bufferSize];
+        byte[] bytebuffer = new byte[bufferSize*2];
 
+        private boolean createWav = false;
 
-        public RecognizerThread(){
+        public RecognizerThread(boolean wavFlag){
+            createWav = wavFlag;
             this.remainingSamples = NO_TIMEOUT;
         }
 
         @Override
         public void run(){
-            String fileURL = RAW_VOICE_URL +  ((count++) % Integer.MAX_VALUE);
-            File file = new File(fileURL);
-            OutputStream os;
+            String FileURL = RAW_VOICE_URL +  ((count++) % Integer.MAX_VALUE);
+            FileOutputStream pcmFOS;
+            FileOutputStream wavFOS;
             try{
-                file.createNewFile();
-                os = new FileOutputStream(file);
-            } catch (Exception e){
-                e.printStackTrace();
-                return;
-            }
-//            logger.debug(TAG +  " new count( " + count +  " ) file created ");
-            recorder.startRecording();
-            if(recorder.getRecordingState() == AudioRecord.RECORDSTATE_STOPPED){
-                recorder.stop();
-            }
-            logger.info(TAG +  " Start to record");
-//            while(!interrupted() && (timeoutSamples == NO_TIMEOUT) || (remainingSamples > 0)){
-            while(!interrupted()){
-//                logger.debug(TAG +  " recorder begin read one buffer");
-                int nread = recorder.read(buffer, 0, bufferSize);
-//                logger.debug(TAG +  " recorder begin finish read one buffer");
-                byte[] voiceByteArray = new byte[bufferSize * 2];
-                ByteBuffer.wrap(voiceByteArray).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buffer);
-                try {
-//                    os = new FileOutputStream(file);
-                    os.write(voiceByteArray);
-//                    logger.debug(TAG +  " recorder write one byte buffer  ");
-//                    os.close();
-                }catch (Exception e){
-                    e.printStackTrace();
+                pcmFile = new File(FileURL + ".pcm");
+                wavFile = new File(FileURL + ".wav");
+//                pcmFile.createNewFile();
+                pcmFOS = new FileOutputStream(pcmFile);
+                wavFOS = new FileOutputStream(wavFile);
+                if(creatWav){
+//                    wavFile.createNewFile();
+                    VoiceUtils.writeWavFileHeader(wavFOS, bufferSize, sample_rate, recorder.getChannelCount());
                 }
+//                wavOs = new FileOutputStream(wavFile);
+//                byteOs = new FileOutputStream(byteFile);
+//            logger.debug(TAG +  " new count( " + count +  " ) file created ");
+                recorder.startRecording();
+                if(recorder.getRecordingState() == AudioRecord.RECORDSTATE_STOPPED){
+                    recorder.stop();
+                    logger.info(" recorder stopped!");
+                    return;
+                }
+                logger.info(" Start to record");
+//            while(!interrupted() && (timeoutSamples == NO_TIMEOUT) || (remainingSamples > 0)){
+                while(!interrupted()){
+
+
+                    /* read in byte buffer and save in byte array*/
+//                logger.debug(TAG +  " recorder begin read one buffer");
+                    int nread = recorder.read(bytebuffer,0, bytebuffer.length);
+//                logger.debug(TAG +  " recorder finish read one buffer");
+                    pcmFOS.write(bytebuffer, 0, nread);
+                    pcmFOS.flush();
+                    if(createWav){
+                        wavFOS.write(bytebuffer, 0, nread);
+                        wavFOS.flush();
+                    }
+
+                    byteCount += nread;
+
+
+                }
+
+                recorder.stop();    //if interrupt, we stop the recording
+                pcmFOS.close();
+                wavFOS.close();
+
+                if(createWav){
+                    RandomAccessFile wavRaf = new RandomAccessFile(FileURL + ".wav", "rw");
+                    byte[] header = VoiceUtils.generateWavFileHeader(pcmFile.length(), sample_rate, recorder.getChannelCount());
+                    logger.info("header: " + VoiceUtils.getHexString(header));
+                    wavRaf.seek(0);
+                    wavRaf.write(header);
+                    wavRaf.close();
+                    logger.info("wavFile.length: " + wavFile.length());
+                }
+                logger.info("pcmFile.length: " + pcmFile.length());
+            } catch (Exception e){
+                logger.info("AudioThread error");
             }
 
-            try {
-                os.close();
-//                logger.debug(TAG + "OutputStream Closed Now.");
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            logger.debug(TAG +  " come out of while loop");
+            logger.info("come out of while loop, stopped recording.");
         }
     }
 
@@ -299,6 +356,12 @@ public class GAssistantActivity extends AppCompatActivity {
                     AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT,
                     bufferSize * 2);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if(recorder.getRecordingState() == AudioRecord.STATE_UNINITIALIZED){
                 recorder.release();
                 throw new IOException("Failed to initialize recorder. Microphone might be already in use");
@@ -308,15 +371,22 @@ public class GAssistantActivity extends AppCompatActivity {
         if(recognizeThread != null){
             setUiState(STATE_READY);
             try {
+
+                logger.info(" interrupting the recognize thread");
                 recognizeThread.interrupt();
+                logger.info(" interrupted the recognize thread");
+
+                logger.info(" joining the recognize thread");
                 recognizeThread.join(1000);
+                logger.info(" joined the recognize thread");
+
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
             }
             recognizeThread = null;
         }else{
             setUiState(STATE_MIC);
-            recognizeThread = new RecognizerThread();
+            recognizeThread = new RecognizerThread(creatWav);
             recognizeThread.start();
         }
     }

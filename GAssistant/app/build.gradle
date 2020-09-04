@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    google()
+    maven {
+        url  "https://dl.bintray.com/alphacep/vosk"
+    }
+}
+
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -42,9 +49,10 @@ android {
 
 dependencies {
 //    implementation project('libs/kaldi-android-5.2-old-release.aar')
-    implementation project(':kaldi-android-5.2-old-release')
-    implementation project(':models')
-    implementation project(':dlib')
+//    implementation project(':kaldi-android-5.2-release')
+//    implementation project(':models')
+//    implementation project(':dlib')
+//    compile files('/opt/jdk/jdk1.8.0_202/jre/lib/rt.jar')
     implementation fileTree(dir: 'libs', include: ['*.jar', '.so', '.aar'])
     implementation 'io.netty:netty:3.8.0.Final'
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -62,4 +70,5 @@ dependencies {
     implementation 'log4j:log4j:1.2.17'
     implementation 'com.android.support:support-annotations:23.1.1'
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'com.alphacep:vosk-android:0.3.10'
 }

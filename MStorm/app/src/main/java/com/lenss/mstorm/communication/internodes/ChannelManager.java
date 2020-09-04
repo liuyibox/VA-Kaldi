@@ -189,7 +189,7 @@ public class ChannelManager {
             int taskID = availTasks.get(index);
             Channel ch = availRemoteTask2Channel.get(taskID);
             logger.info("------- SendToRandomDownStream ------, from " + pkt.fromTask + "-------------------");
-            if (ch != null && ch.isWritable()) {
+            if ( ch != null && ch.isWritable()) {
                 pkt.toTask = taskID;
                 ch.write(pkt);
                 dispatchStatus.remoteTaskID = taskID;

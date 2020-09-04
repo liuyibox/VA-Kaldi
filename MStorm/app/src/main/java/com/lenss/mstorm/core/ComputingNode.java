@@ -8,6 +8,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Process;
@@ -17,6 +19,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.text.style.AbsoluteSizeSpan;
+import android.util.Log;
 import android.widget.Toast;
 import com.google.gson.Gson;
 import com.lenss.mstorm.R;
@@ -261,12 +264,52 @@ public class ComputingNode extends Service {
         // help the DexClassLoader find the .so library
         String librarySearchPath = ((BaseDexClassLoader) getClassLoader()).findLibrary("kaldi_jni");
         logger.info("The library Search Path is: " + librarySearchPath);
-        librarySearchPath = librarySearchPath.substring(0, librarySearchPath.lastIndexOf('/'));
-        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), librarySearchPath, this.getClassLoader());
 
-//        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), librarySearchPath, this.getClassLoader());
+//        static{
+//        try {
+////        System.loadLibrary("android_dlib");
+//            System.load(librarySearchPath);
+//            Log.e(TAG, "Load Successfully");
+////        jniNativeClassInit();
+////            Log.e(TAG, "jniNativeClassInit success");
+//        } catch (UnsatisfiedLinkError e) {
+//            Log.e(TAG, "android_dlib library not found");
+//        }
+//        }
+
+//        librarySearchPath = librarySearchPath.substring(0, librarySearchPath.lastIndexOf('/'));
+//        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, null, librarySearchPath, this.getClassLoader());
+
+        DexClassLoader dcLoader = new DexClassLoader(MStorm.apkFileDirectory + fileName, dexOutputDir.getAbsolutePath(), null, this.getClassLoader());
         logger.info("dexPath: " + MStorm.apkFileDirectory + fileName);
         logger.info("nativeLibPath: " +  MStorm.nativeLibDir);
+        logger.info("dcLoader: " + dcLoader);
+        logger.info("this.getClassLoader: " + this.getClassLoader());
+
+//        File native_dir = new File(MStorm.nativeLibDir);
+//        File[] files = native_dir.listFiles();
+//        logger.info("Files size: " + files.length);
+//        for(int i = 0; i < files.length; i++){
+//            logger.info("FileName: " + files[i].getName());
+//        }
+
+//        PackageManager pm = MStorm.getContext().getPackageManager();
+//        try {
+//            ApplicationInfo applicationInfo = pm.getApplicationInfo("com.lenss.mstorm", PackageManager.GET_SHARED_LIBRARY_FILES);
+//            String[] sharedLibDirs = applicationInfo.sharedLibraryFiles;
+//            for(String sharedLibDir : sharedLibDirs){
+//                logger.info("Shared library path: " + sharedLibDir);
+//                File shared_dir = new File(sharedLibDir);
+//                File[] shared_files = shared_dir.listFiles();
+//                logger.info("Shared Files size: " + shared_files.length);
+//                for(int i = 0; i < shared_files.length; i++){
+//                    logger.info("Shared FileName: " + shared_files[i].getName());
+//                }
+//            }
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        }
+
         if (localTasks!=null) {
 //            logger.info("localTask is not null.");
             HashMap<String, String> component2serInstance = topology.getSerInstances();

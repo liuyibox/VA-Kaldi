@@ -29,7 +29,7 @@ public class MyVoiceDistributor extends Distributor {
     private final String folderName = Environment.getExternalStorageDirectory().getPath() + "/distressnet/MStorm/RawVoice/";
     Logger logger;
     FileInputStream fis;
-    static FileObserver fileObserver;
+    private static FileObserver fileObserver;
     int taskID;
 
     @Override
@@ -44,25 +44,28 @@ public class MyVoiceDistributor extends Distributor {
     public void execute(){
         fileObserver = new FileObserver(folderName) {
             @Override
-            public void onEvent(int event, @Nullable String path) {
-                if(path == null || path.equals(".probe")) return;
+            public void onEvent(int event, @Nullable String file) {
+                if(file == null || file.equals(".probe")) return;
+                if(file.substring(file.lastIndexOf('.')).equals(".wav")) return;
+                logger.info("Detected new pcm file: " + file);
                 if(event == FileObserver.CLOSE_WRITE){
-                    readStream(path);
+                    readStream(file);
                 }
             }
 
             public void readStream(String file){
                 try{
                     long enterTime = SystemClock.elapsedRealtimeNanos();
-                    logger.info(TAG +  " Distributor start to new a FileInput Stream");
+                    logger.info(" Distributor start to read a new FileInput Stream : " + file);
                     fis = new FileInputStream(folderName + file);
                     int lengthOfVoiceBytes = fis.available();
                     if(lengthOfVoiceBytes > 0){
                         byte[] voiceByteArray = new byte[lengthOfVoiceBytes];
                         fis.read(voiceByteArray);
-
+                        logger.info(String.format("distributor has load %d bytes from %s", lengthOfVoiceBytes, file));
                         InternodePacket pktSend = new InternodePacket();
                         pktSend.ID = enterTime;
+                        pktSend.type = InternodePacket.TYPE_DATA;
                         pktSend.fromTask = getTaskID();
                         pktSend.complexContent = voiceByteArray;
                         pktSend.traceTask.add("MVP_" + getTaskID());
@@ -85,6 +88,7 @@ public class MyVoiceDistributor extends Distributor {
                         }
 
                         String report = "SEND:" + "ID:" +  pktSend.ID + "\n";
+                        logger.info(report);
                         try{
                             FileWriter fw = new FileWriter(ComputingNode.EXEREC_ADDRESSES, true);
                             fw.write(report);

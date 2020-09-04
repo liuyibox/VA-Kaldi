@@ -13,8 +13,8 @@ android {
 
     defaultConfig {
         applicationId "com.lenss.mstorm"
-        minSdkVersion 26
-        targetSdkVersion 28
+        minSdkVersion 21
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -58,6 +58,10 @@ android {
 
 repositories {
     mavenCentral()
+    google()
+    maven {
+        url  "https://dl.bintray.com/alphacep/vosk"
+    }
 }
 
 dependencies {
@@ -82,10 +86,11 @@ dependencies {
 //    implementation 'androidx.appcompat:appcompat:1.1.0'
 //    implementation 'com.android.support:support-v4:28.0.0'
 //    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation project(':dlib')
-    implementation project(':kaldi-android-5.2-release-old')
-    implementation project(':models')
-
+//    implementation project(':dlib')
+    implementation 'com.alphacep:vosk-android:0.3.10'
+//    implementation project(':kaldi-android-5.2-release-old')
+//    implementation project(':models')
+//    implementation project(':kaldilib')
 
 }
 
